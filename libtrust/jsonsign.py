@@ -1,6 +1,9 @@
 from __future__ import unicode_literals
 
-import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import BytesIO as StringIO
 import collections
 import json
 
@@ -11,8 +14,11 @@ namedtuple = collections.namedtuple
 
 
 def detect_json_indent(json_content):
+    if type(json_content) == bytes:
+        json_content = json_content.decode()
     indent = ''
-    if len(json_content) > 2 and json_content[0] == '{' and json_content[1] == '\n':
+    if len(json_content) > 2 and json_content[0] == '{' \
+            and json_content[1] == '\n':
         quote_index = json_content[1:].find('"')
         if quote_index > 0:
             indent = json_content[2:quote_index + 1]
@@ -93,7 +99,8 @@ class SignKey(object):
 
 
 class JSONSignature(object):
-    def __init__(self, payload, indent, format_length, format_tail, signatures=None):
+    def __init__(self, payload, indent, format_length,
+                 format_tail, signatures=None):
         self.payload = payload
         self.indent = indent
         self.format_length = format_length
@@ -101,12 +108,15 @@ class JSONSignature(object):
         self.signatures = signatures or []
 
     @classmethod
-    def from_map(cls, content):
+    def from_map(cls, content, encode='utf-8'):
         indent = 3
-        payload = util.dump_json(content, indent=indent, separators=(',', ': '))
-        payload_b64url = util.jose_base64_url_encode(payload)
+        payload = util.dump_json(content,
+                                 indent=indent,
+                                 separators=(',', ': '))
+        payload_b64url = util.jose_base64_url_encode(payload.encode())
         format_length = len(payload) - 2
-        return cls(payload_b64url, ' ' * indent, format_length, payload[format_length:])
+        return cls(payload_b64url, ' ' * indent,
+                   format_length, payload[format_length:])
 
     def protected_header(self, timestamp=None):
         protected = {
@@ -121,7 +131,7 @@ class JSONSignature(object):
 
     def sign(self, private_key, timestamp=None):
         protected = self.protected_header(timestamp=timestamp)
-        sign_bytes = StringIO.StringIO(self.sign_bytes(protected))
+        sign_bytes = StringIO(self.sign_bytes(protected))
 
         sig_bytes, algorithm = private_key.sign(sign_bytes, hash_.HashID.SHA256)
         self.signatures.append(
@@ -150,7 +160,7 @@ class JSONSignature(object):
             sig_bytes = util.jose_base64_url_decode(sign.signature)
 
             try:
-                public_key.verify(StringIO.StringIO(sign_bytes), sign.header.algorithm, sig_bytes)
+                public_key.verify(StringIO(sign_bytes), sign.header.algorithm, sig_bytes)
             except Exception as e:
                 raise e
 
@@ -167,7 +177,11 @@ class JSONSignature(object):
             ('payload', self.payload),
             ('signatures', self.signatures)
         ))
-        return util.dump_json(json_map, sort_keys=False, indent=self.indent.count(' '), separators=(',', ': '), cls=JSONEncoder)
+        return util.dump_json(json_map,
+                              sort_keys=False,
+                              indent=self.indent,
+                              separators=(',', ': '),
+                              cls=JSONEncoder)
 
     @classmethod
     def new_json_signature(cls, content, *signatures):
@@ -176,9 +190,8 @@ class JSONSignature(object):
 
         not_space = lambda c: c not in ('\t', '\n', '\v', '\f', '\r', ' ', '\x85', '\xa0')
         last_index_func = lambda d, f: len(d) - next((i for i, c in enumerate(d[::-1]) if f(c)), -1) - 1
-
         close_index = last_index_func(content, not_space)
-        if content[close_index] != '}':
+        if chr(content[close_index]) != '}':
             raise JSONSignError("invalid json content")
 
         last_rune_index = last_index_func(content[:close_index], not_space)

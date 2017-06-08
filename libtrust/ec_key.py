@@ -130,8 +130,8 @@ class ECPublicKey(ECKey, PublicKey):
         y_bytes = cry_utils.int_to_bytes(self.numbers.y)
         octet_length = (self.curve.bit_size() + 7) >> 3
 
-        x_bytes = str('\x00') * (octet_length - len(x_bytes)) + x_bytes
-        y_bytes = str('\x00') * (octet_length - len(y_bytes)) + y_bytes
+        x_bytes = b'\x00' * (octet_length - len(x_bytes)) + x_bytes
+        y_bytes = b'\x00' * (octet_length - len(y_bytes)) + y_bytes
 
         jwk['x'] = util.jose_base64_url_encode(x_bytes)
         jwk['y'] = util.jose_base64_url_encode(y_bytes)
@@ -139,7 +139,8 @@ class ECPublicKey(ECKey, PublicKey):
 
     def verify(self, buffer, alg, signature):
         sig_length = len(signature)
-        r_bytes, s_bytes = signature[:sig_length / 2], signature[sig_length / 2:]
+        middle = int(sig_length / 2)
+        r_bytes, s_bytes = signature[:middle], signature[middle:]
         r, s = cry_utils.int_from_bytes(r_bytes, 'big'), cry_utils.int_from_bytes(s_bytes, 'big')
 
         signature = asy_utils.encode_dss_signature(r, s)
@@ -199,7 +200,7 @@ class ECPrivateKey(ECKey, PrivateKey):
         d_bytes = cry_utils.int_to_bytes(self.numbers.private_value)
         octet_length = (len(cry_utils.int_to_bytes(self.numbers.private_value - 1)) + 7) >> 3
 
-        d_bytes = str('\x00') * (octet_length - len(d_bytes)) + d_bytes
+        d_bytes = b'\x00' * (octet_length - len(d_bytes)) + d_bytes
         private_key_map = {
             'd': util.jose_base64_url_encode(d_bytes)
         }
@@ -223,8 +224,8 @@ class ECPrivateKey(ECKey, PrivateKey):
         s_bytes = cry_utils.int_to_bytes(s)
         octet_length = (self.public_key().curve.bit_size() + 7) >> 3
 
-        r_bytes = str('\x00') * (octet_length - len(r_bytes)) + r_bytes
-        s_bytes = str('\x00') * (octet_length - len(s_bytes)) + s_bytes
+        r_bytes = b'\x00' * (octet_length - len(r_bytes)) + r_bytes
+        s_bytes = b'\x00' * (octet_length - len(s_bytes)) + s_bytes
         signature = r_bytes + s_bytes
         return signature, self.signature_algorithm.header_param()
 

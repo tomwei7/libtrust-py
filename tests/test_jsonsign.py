@@ -14,9 +14,9 @@ class JSONSignTest(unittest.TestCase):
         self.content = {
             'hello': '123'
         }
-        with open(fixtures_path('private.pem'), 'r') as f:
+        with open(fixtures_path('private.pem'), 'rb') as f:
             self.rsa_private_key = rsa_key.RSAPrivateKey.from_pem(f.read())
-        with open(fixtures_path('ec-private.pem'), 'r') as f:
+        with open(fixtures_path('ec-private.pem'), 'rb') as f:
             self.ec_private_key = ec_key.ECPrivateKey.from_pem(f.read())
 
     def create_js(self):
@@ -52,7 +52,7 @@ class JSONSignTest(unittest.TestCase):
              22, 119, 214, 222, 151, 216, 128, 76, 222, 217, 197, 176, 66, 173, 151, 72, 198, 49, 21, 246, 106, 131, 157, 164,
              199, 166, 103, 204, 85, 78, 194, 10, 38, 248, 95, 181, 233, 237, 199, 166, 254, 222, 77, 216, 221, 17, 45, 120, 8,
              174, 23, 193, 150, 133, 169, 128, 107, 208, 145, 121, 130],
-            [ord(c) for c in rsa_sig_bytes]
+            [int(c) for c in rsa_sig_bytes]
         )
         self.assertEqual(
             rsa_algorithm, 'RS256'
@@ -69,9 +69,9 @@ class JSONSignTest(unittest.TestCase):
     def test_ec_key_verify(self):
         from libtrust.jsonsign import JsHeader
         from libtrust.jsonsign import JsSignature
-        sig_bytes = str('').join(
+        sig_bytes = b''.join(
             [
-                chr(c) for c in
+                bytes([c]) for c in
                 [
                     53, 176, 9, 188, 171, 104, 49, 228, 136, 38, 67, 255, 195, 21, 235, 107, 150, 22, 152, 124, 80,
                     89, 129, 125,

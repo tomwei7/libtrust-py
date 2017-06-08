@@ -1,6 +1,9 @@
 from __future__ import unicode_literals
 
-import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import BytesIO as StringIO
 import json
 import unittest
 
@@ -11,9 +14,9 @@ from tests import fixtures_path
 
 class ECKeyTest(unittest.TestCase):
     def setUp(self):
-        with open(fixtures_path('ec-private.pem'), 'r') as f:
+        with open(fixtures_path('ec-private.pem'), 'rb') as f:
             self.private_key = ec_key.ECPrivateKey.from_pem(f.read())
-        with open(fixtures_path('ec-public.pem'), 'r') as f:
+        with open(fixtures_path('ec-public.pem'), 'rb') as f:
             self.public_key = ec_key.ECPublicKey.from_pem(f.read())
 
     def test_to_pem(self):
@@ -40,7 +43,7 @@ class ECKeyTest(unittest.TestCase):
         self.assertEqual(pub_key_json, pub_key.marshal_json())
 
     def test_sign(self):
-        message = StringIO.StringIO('Hello, World!'.encode('utf-8'))
+        message = StringIO('Hello, World!'.encode())
         sig_algs = (hash_.ES256, hash_.ES384, hash_.ES521)
         origin_sig = (
             [88, 34, 78, 248, 120, 105, 162, 172, 14, 179, 252, 201, 193, 230, 124, 105, 227, 145, 236, 104, 31, 153, 215, 117,
@@ -62,4 +65,4 @@ class ECKeyTest(unittest.TestCase):
             self.assertTrue(self.public_key.verify(message, alg, sig))
 
             message.seek(0)
-            self.assertTrue(self.public_key.verify(message, alg, str('').join([chr(i) for i in origin_sig[i]])))
+            self.assertTrue(self.public_key.verify(message, alg, b''.join([bytes([i]) for i in origin_sig[i]])))

@@ -9,7 +9,7 @@ from cryptography import utils as cry_utils
 
 
 def key_id_encode(hash_bytes):
-    s = base64.b32encode(hash_bytes).rstrip('=')
+    s = base64.b32encode(hash_bytes).decode().rstrip('=')
     block_size = 4
     result = ':'.join((s[i:i + block_size] for i in range(0, len(s), block_size)))
     remain = len(s) % block_size
@@ -18,8 +18,10 @@ def key_id_encode(hash_bytes):
     return result
 
 
-def jose_base64_url_encode(data):
-    return base64.urlsafe_b64encode(data).rstrip('=')
+def jose_base64_url_encode(data, encode='utf-8'):
+    if type(data) == str:
+        data = data.encode(encode)
+    return base64.urlsafe_b64encode(data).decode().rstrip('=')
 
 
 def jose_base64_url_decode(data):
@@ -35,7 +37,7 @@ def jose_base64_url_decode(data):
 
 
 def serialize_rsa_public_exponent_param(e):
-    return cry_utils.int_to_bytes(e).lstrip('\x00')
+    return cry_utils.int_to_bytes(e).lstrip(b'\x00')
 
 
 def dump_json(data, **kwargs):
@@ -51,7 +53,7 @@ def parse_rsa_modules_params(nb64url):
 
 def parse_rsa_public_exponent_param(eb64url):
     e_bytes = jose_base64_url_decode(eb64url)
-    e_bytes = '\x00' * (4 - len(e_bytes)) + e_bytes
+    e_bytes = b'\x00' * (4 - len(e_bytes)) + e_bytes
     return cry_utils.int_from_bytes(e_bytes, 'big')
 
 
