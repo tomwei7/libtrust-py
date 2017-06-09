@@ -12,10 +12,10 @@ install_requires = [
 ]
 
 setup(
-    name="libtrust-py",
+    name="libtrust-py3",
     version='0.1.1',
     description="Integrate docker/libtrust with python.",
-    url='https://github.com/realityone/libtrust-py',
+    url='https://github.com/tomwei7/libtrust-py3',
     packages=['libtrust'],
     install_requires=install_requires,
     zip_safe=False,

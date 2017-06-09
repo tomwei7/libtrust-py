@@ -1,0 +1,10 @@
+language: python
+python:
+- '3.6'
+install: pip install -r requirements.txt
+script: python -m unittest
+deploy:
+  provider: pypi
+  user: "tomwei7"
+  password:
+    secure: YjLksP8xe+w+niXxyIpjEvg9Q/+mDyr67oZ8lUlb9Nbcb+wkUJdiOuiB7Eg9cAFvyVocu/eZ0O2q2TWujU7aMX6I4izBiGm8e6w8i64rC+xdXVqRRsbFA3vUN//j2N5Sa4UdNOKCjiWI5dLyziVkZ3ITbX5e1EQlNI7VGxkRV5tnJTxQeKV+JiVwmcuCdkpwB4+QRPeIhuxEK1uZ2iARzmxEM36zp4thzsONeGELNk9tSHmGo5K57y3V04RBufiTV3MMV9zHyb6S1jamABl/zewnAJrywyKvamAvv3FiQGIN19xVBr5Am5SrolA5zai48yMzD1MGaBjHW59gtzX7Q8X0+2IsndjJDEjNT/dYk7KHBDaR/lowS2ED4Gj/DwmL803buvRsjGV3djmNhgs70gQhcfOykxgB69XiHEJGaXOUHgQTvKlcwaD1sZNAIfD2dU58EMkl74lxkoHNAzsDX/sZiMfR1eIUJ70msm64bYTtG4YwelmI9vsZEoOxNOWyF97+tFllkw4Tz10MNs3RrAcq8zmJ6QM0fgeflbUbSU9tLSuWRIhR5nYHIzn1zp6io5lJ0Ej5qmXMaLbPAZ/hu8MaVkYxYNvAfjWv5upVmhj8o1TqTXOYuSgd2VZwUU4u+QHUMEZMUVyjfz2FO2p39jzzOtoiAacGi8p3DbYTfcw=
