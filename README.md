@@ -2,6 +2,8 @@
 
 Fork from [github.com/realityone/libtrust-py](https://github.com/realityone/libtrust-py)
 
+only support python3
+
 Integrate [docker/libtrust](https://github.com/docker/libtrust) with python.
 
 However libtrust has been deprecated, sign/verify manifest with docker distribution in python still cause great suffering.
@@ -13,7 +15,7 @@ However libtrust has been deprecated, sign/verify manifest with docker distribut
 You can install from PyPi.
 
 ```shell
-$ pip install libtrust-py
+$ pip install libtrust-py3
 ```
 
 Or install from GitHub for latest version.
